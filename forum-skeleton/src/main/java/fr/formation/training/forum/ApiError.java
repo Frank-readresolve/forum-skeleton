@@ -5,16 +5,22 @@ import java.util.*;
 
 public class ApiError {
 
-    private LocalDateTime timestamp = LocalDateTime.now();
-
     private String message;
 
-    private List<Object> errors = new ArrayList<>();
+    private LocalDateTime timestamp = LocalDateTime.now();
 
-    private boolean onError = false;
+    private List<ValidationError> errors = Collections.emptyList();
+
+    private boolean validationErrors = false;
 
     public ApiError(String message) {
 	this.message = message;
+    }
+
+    public ApiError(String message, List<ValidationError> errors) {
+	this.message = message;
+	this.errors = errors;
+	validationErrors = true;
     }
 
     public LocalDateTime getTimestamp() {
@@ -25,19 +31,11 @@ public class ApiError {
 	return message;
     }
 
-    public List<Object> getErrors() {
+    public List<ValidationError> getErrors() {
 	return errors;
     }
 
-    public void setErrors(List<Object> errors) {
-	this.errors = errors;
-    }
-
-    public boolean isOnError() {
-	return onError;
-    }
-
-    public void setOnError(boolean onError) {
-	this.onError = onError;
+    public boolean isValidationErrors() {
+	return validationErrors;
     }
 }

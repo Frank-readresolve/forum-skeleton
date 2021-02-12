@@ -11,6 +11,7 @@ import fr.formation.training.forum.services.TechnologyService;
 
 @RestController
 @RequestMapping("/technologies")
+@CrossOrigin("*")
 public class TechnologyController {
 
     private final TechnologyService service;
@@ -68,7 +69,7 @@ public class TechnologyController {
 
     // Native insert and SQL injection demo:
     @PostMapping
-    public void insertNative(@RequestBody @Valid TechnologyAddDto dto) {
+    public void insertNative(@Valid @RequestBody TechnologyAddDto dto) {
 	service.insertNative(dto);
     }
 

@@ -10,6 +10,7 @@ import fr.formation.training.forum.services.QuestionService;
 
 @RestController
 @RequestMapping("/questions")
+@CrossOrigin("*")
 public class QuestionController {
 
     private final QuestionService service;

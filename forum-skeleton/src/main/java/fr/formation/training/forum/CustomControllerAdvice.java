@@ -1,6 +1,6 @@
 package fr.formation.training.forum;
 
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.logging.*;
 import org.springframework.http.*;
@@ -15,6 +15,35 @@ public class CustomControllerAdvice extends ResponseEntityExceptionHandler {
 
     private final static Log LOGGER = LogFactory
 	    .getLog(CustomControllerAdvice.class);
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+	    MethodArgumentNotValidException ex, HttpHeaders headers,
+	    HttpStatus status, WebRequest request) {
+	LOGGER.trace("400 BAD REQUEST - VALIDATION ERROR", ex);
+	ApiError body = buildValidationApiError(status, ex);
+	return handleExceptionInternal(ex, body, null, status, request);
+    }
+
+    private static ApiError buildValidationApiError(HttpStatus status,
+	    MethodArgumentNotValidException ex) {
+	BindingResult result = ex.getBindingResult();
+	List<FieldError> fieldErrors = result.getFieldErrors();
+	List<ValidationError> validationErrors = new ArrayList<>();
+	for (FieldError error : fieldErrors) {
+	    String violation = error.getCode();
+	    String input = error.getField();
+	    validationErrors.add(new ValidationError(violation, input, false));
+	}
+	List<ObjectError> globalErrors = result.getGlobalErrors();
+	for (ObjectError error : globalErrors) {
+	    String violation = error.getCode();
+	    String input = error.getObjectName();
+	    validationErrors.add(new ValidationError(violation, input, true));
+	}
+	return new ApiError("Validation error, STP revois ta saisie mon pote !",
+		validationErrors);
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     protected ResponseEntity<Object> handleResourceNotFoundException(
@@ -33,22 +62,11 @@ public class CustomControllerAdvice extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-	    MethodArgumentNotValidException ex, HttpHeaders headers,
-	    HttpStatus status, WebRequest request) {
-	// ex.getAllErrors();
-	BindingResult results = ex.getBindingResult();
-	List<FieldError> fieldErrors = results.getFieldErrors();
-	// results.getGlobalErrors();
-	return handleExceptionInternal(ex, null, headers, status, request);
-    }
-
-    @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex,
 	    Object body, HttpHeaders headers, HttpStatus status,
 	    WebRequest request) {
 	if (body == null) {
-	    body = new ApiError(ex.getMessage());
+	    body = new ApiError(status.getReasonPhrase());
 	}
 	return super.handleExceptionInternal(ex, body, headers, status,
 		request);

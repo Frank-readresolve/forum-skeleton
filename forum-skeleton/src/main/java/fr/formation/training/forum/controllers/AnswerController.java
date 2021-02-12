@@ -12,6 +12,7 @@ import fr.formation.training.forum.services.AnswerService;
 
 @RestController
 @RequestMapping("/answers")
+@CrossOrigin("*")
 public class AnswerController {
 
     private final AnswerService service;
